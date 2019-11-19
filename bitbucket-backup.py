@@ -5,7 +5,6 @@ import requests
 import time
 import json
 import os
-import subprocess
 import git
 from git import RemoteProgress
 
@@ -104,21 +103,26 @@ def git_prog(p1, p2, p3, p4):
 def backup_repository(repo):
     url = repo['url']
     backup_dir = os.path.join('backup', repo['full_name'])
-    opts = ['git', 'clone', url, backup_dir]
-    print(' '.join(opts))
 
-    repo = None
+    # Clone new repo or update existing one
     if not os.path.exists(backup_dir):
+        print("Cloning {}".format(backup_dir))
         repo = git.Repo.clone_from(url, backup_dir, progress=CustomProgress())
     else:
+        print("Pulling {}".format(backup_dir))
         repo = git.Repo(backup_dir)
         o = repo.remotes.origin
+        o.fetch()
         o.pull()
 
-    print(repo.remotes.)
-
-    # subprocess.run(opts)
-    quit()
+    # track and pull new branches
+    local_branches = [r.name for r in repo.branches]
+    remote_branches = [i.name for i in repo.remote('origin').fetch()]
+    for r in remote_branches:
+        s = r[7:]
+        if s not in local_branches:
+            print("tracking branch {}".format(s))
+            repo.git.checkout(s)
 
 
 def backup_repositories(repos):
@@ -130,5 +134,3 @@ bb = BitBucketAPI('config.ini')
 
 repos = bb.get_filtered_repositories()
 backup_repositories(repos)
-
-# print(json.dumps(repos, indent=2))
