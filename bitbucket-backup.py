@@ -6,6 +6,14 @@ import time
 import json
 import os
 import subprocess
+import git
+from git import RemoteProgress
+
+
+class CustomProgress(RemoteProgress):
+    def update(self, op_code, cur_count, max_count=None, message=''):
+        if message:
+            print(message)
 
 
 class BitBucketAPI:
@@ -89,12 +97,27 @@ class BitBucketAPI:
         return ret
 
 
+def git_prog(p1, p2, p3, p4):
+    print(p1, p2, p3, p4)
+
+
 def backup_repository(repo):
     url = repo['url']
     backup_dir = os.path.join('backup', repo['full_name'])
     opts = ['git', 'clone', url, backup_dir]
     print(' '.join(opts))
-    subprocess.run(opts)
+
+    repo = None
+    if not os.path.exists(backup_dir):
+        repo = git.Repo.clone_from(url, backup_dir, progress=CustomProgress())
+    else:
+        repo = git.Repo(backup_dir)
+        o = repo.remotes.origin
+        o.pull()
+
+    print(repo.remotes.)
+
+    # subprocess.run(opts)
     quit()
 
 
