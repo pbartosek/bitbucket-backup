@@ -125,6 +125,14 @@ def backup_repository(repo):
             repo.git.checkout(s)
 
 
+def print_sizes(repos):
+    total = 0
+    for r in repos:
+        print("{} - {}".format(r['name'], r['size']))
+        total += r['size']
+    print("Total - {}".format(total))
+
+
 def backup_repositories(repos):
     for r in repos:
         backup_repository(r)
@@ -133,4 +141,5 @@ def backup_repositories(repos):
 bb = BitBucketAPI('config.ini')
 
 repos = bb.get_filtered_repositories()
+# print_sizes(bb.get_repositories())
 backup_repositories(repos)
